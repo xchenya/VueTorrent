@@ -153,7 +153,7 @@ async function checkNewVersion() {
     return
   }
 
-  const latest = await github.getVersion()
+  const latest = await github.getVersion(isStableVersion.value)
   if (`v${vueTorrentVersion.value}` === latest) {
     toast.success(t('toast.version.latest'))
     return
@@ -315,9 +315,9 @@ function openDurationFormatHelp() {
           <h3>
             {{ t('settings.vuetorrent.general.currentVersion') }}
             <span v-if="!vueTorrentVersion">undefined</span>
-            <a v-else-if="vueTorrentVersion === 'DEV'" target="_blank" rel="noopener noreferrer" href="https://github.com/VueTorrent/VueTorrent">{{ vueTorrentVersion }}</a>
-            <a v-else-if="isStableVersion" target="_blank" rel="noopener noreferrer" href="https://github.com/VueTorrent/VueTorrent/releases/latest">{{ vueTorrentVersion }}</a>
-            <a v-else target="_blank" rel="noopener noreferrer" href="https://github.com/VueTorrent/VueTorrent/releases/tag/latest_nightly">{{ vueTorrentVersion }}</a>
+            <a v-else-if="vueTorrentVersion === 'DEV'" target="_blank" rel="noopener noreferrer" href="https://github.com/xchenya/VueTorrent">{{ vueTorrentVersion }}</a>
+            <a v-else-if="isStableVersion" target="_blank" rel="noopener noreferrer" href="https://github.com/xchenya/VueTorrent/releases/latest">{{ vueTorrentVersion }}</a>
+            <a v-else target="_blank" rel="noopener noreferrer" href="https://github.com/xchenya/VueTorrent/releases/tag/latest_nightly">{{ vueTorrentVersion }}</a>
           </h3>
         </v-col>
 

@@ -34,6 +34,7 @@
 | **每页条数** | 默认 **30 条** |
 | **统一默认配置** | 集中维护在 [src/config/defaults.ts](src/config/defaults.ts)，初始化与恢复默认共用配置 |
 | **双语文档** | 默认使用中文 README，同时保留 [English](README.en.md)；仓库、发布和贡献入口指向本 fork |
+| **自动发布** | 更新 `master` 后自动打包到 [最新开发版](https://github.com/xchenya/VueTorrent/releases/tag/latest_nightly)，也支持正式版本与手动构建 |
 | **开发约定** | [AGENTS.md](AGENTS.md) 说明项目结构、开发规范、验证方式与 fork 发布边界 |
 
 ### 调整默认设置
@@ -111,9 +112,26 @@ npm run preview-demo
 
 ## 安装
 
+### 自动打包与发布
+
+工作流：[Build and publish releases](https://github.com/xchenya/VueTorrent/actions/workflows/release.yml)。使用 GitHub 自带的 `GITHUB_TOKEN`，无需配置额外密钥。
+
+| 触发方式 | Releases 中的结果 |
+| --- | --- |
+| 推送或合并代码到 `master` | 自动更新 `latest_nightly` 开发版（标记为预发布） |
+| 推送 `vX.Y.Z` 标签 | 发布对应正式版本；标签须与 `package.json` 版本一致 |
+| Actions → Run workflow | 选择 `master` 手动更新开发版；也可选择已有版本标签补跑正式发布 |
+
+测试、lint 和构建通过后，上传 **`vuetorrent.zip`** 与 **`SHA256SUMS.txt`**。开发版滚动更新，已发布的正式版本保留原包。
+流程只向本仓库发布，使用仓库内的翻译，不依赖上游 Tolgee，也不发布上游 Docker 镜像或演示站。
+
+首次 fork 若 Actions 显示未启用，先在 Actions 页启用工作流，再手动运行一次。需要打包的提交不要添加 `[skip ci]`。
+
 ### 使用发布包
 
-从[本项目的 Releases 页面](https://github.com/xchenya/VueTorrent/releases)下载可用的构建包。若尚无发布包，请使用下面的源码构建方式。
+从[本项目的 Releases 页面](https://github.com/xchenya/VueTorrent/releases)下载 **`vuetorrent.zip`**。最新代码构建位于 [latest_nightly](https://github.com/xchenya/VueTorrent/releases/tag/latest_nightly)。
+
+不要下载 GitHub 自动生成的 **Source code (zip / tar.gz)** 作为 WebUI；它们是未编译的源码。首次构建完成前，也可使用下面的源码构建方式。
 
 解压后，将整个 `vuetorrent` 目录放到 qBittorrent 能够访问的位置，在 qBittorrent 的设置 → WebUI 中启用“使用备用 Web 用户界面”，将文件位置设置为该目录的绝对路径。
 

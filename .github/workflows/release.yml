@@ -1,0 +1,166 @@
+name: Build and publish releases
+
+on:
+  push:
+    branches: [master]
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Never interrupt an upload. Recheck master before publishing a nightly build.
+concurrency:
+  group: release-${{ github.ref_type == 'tag' && github.ref_name || 'nightly' }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      tag: ${{ steps.version.outputs.tag }}
+      commit: ${{ steps.version.outputs.commit }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Select build version
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          base_version=$(node -p "require('./package.json').version")
+          commit=$(git rev-parse HEAD)
+          if [[ "$GITHUB_REF_TYPE" == tag ]]; then
+            if [[ ! "$GITHUB_REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo '::error::Stable release tags must use vX.Y.Z.'
+              exit 1
+            fi
+            version=${GITHUB_REF_NAME#v}
+            if [[ "$version" != "$base_version" ]]; then
+              echo '::error::The release tag must match the version in package.json.'
+              exit 1
+            fi
+            tag=$GITHUB_REF_NAME
+          else
+            version="$base_version-$GITHUB_RUN_NUMBER-g${commit:0:8}"
+            tag=latest_nightly
+          fi
+          npm version --no-commit-hooks --no-git-tag-version --allow-same-version "$version"
+          {
+            echo "version=$version"
+            echo "tag=$tag"
+            echo "commit=$commit"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Run tests
+        run: npm test
+
+      - name: Lint
+        run: npm run lint
+
+      # Build this fork's checked-in translations without Tolgee credentials.
+      - name: Build WebUI
+        run: npm run build
+
+      - name: Package WebUI
+        env:
+          BUILD_VERSION: ${{ steps.version.outputs.version }}
+          BUILD_COMMIT: ${{ steps.version.outputs.commit }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f vuetorrent/public/index.html
+          test "$(cat vuetorrent/version.txt)" = "$BUILD_VERSION"
+          mkdir release-assets
+          zip -q -r release-assets/vuetorrent.zip vuetorrent
+          (cd release-assets && sha256sum vuetorrent.zip > SHA256SUMS.txt)
+          cat > release-assets/release-notes.md <<EOF
+          本仓库自动构建 / Automated build of this fork.
+
+          - Version: v$BUILD_VERSION
+          - Commit: $BUILD_COMMIT
+          - Build: https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID
+
+          下载 **vuetorrent.zip**，解压后将 **vuetorrent/** 目录配置为 qBittorrent 的备用 WebUI 路径（目录内含 public/ 和 version.txt）。
+          **SHA256SUMS.txt** 提供下载校验。GitHub 自动生成的 Source code 文件是源码，不能直接作为 WebUI 使用。
+
+          Download **vuetorrent.zip**, extract it, and select **vuetorrent/** as the alternative WebUI directory in qBittorrent. It contains public/ and version.txt.
+          Use **SHA256SUMS.txt** to verify the download. GitHub's generated Source code archives are not compiled WebUI packages.
+          EOF
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: release-assets
+          path: release-assets/
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: release-assets
+          path: release-assets
+
+      - name: Publish to this repository
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          BUILD_VERSION: ${{ needs.build.outputs.version }}
+          BUILD_COMMIT: ${{ needs.build.outputs.commit }}
+          RELEASE_TAG: ${{ needs.build.outputs.tag }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          prerelease=false
+          latest=true
+          if [[ "$RELEASE_TAG" == latest_nightly ]]; then
+            current=$(gh api "repos/$GH_REPO/branches/master" --jq .commit.sha)
+            if [[ "$current" != "$BUILD_COMMIT" ]]; then
+              echo 'A newer master commit exists; keeping the current release until its build succeeds.'
+              exit 0
+            fi
+            prerelease=true
+            latest=false
+            # Move only the rolling nightly tag; never rewrite stable version tags.
+            if gh api "repos/$GH_REPO/git/ref/tags/latest_nightly" --silent; then
+              gh api --method PATCH "repos/$GH_REPO/git/refs/tags/latest_nightly" \
+                -f sha="$BUILD_COMMIT" -F force=true --silent
+            else
+              gh api --method POST "repos/$GH_REPO/git/refs" \
+                -f ref=refs/tags/latest_nightly -f sha="$BUILD_COMMIT" --silent
+            fi
+          fi
+
+          if gh release view "$RELEASE_TAG" --json isDraft --jq .isDraft > release-state.txt; then
+            if [[ "$prerelease" == false && "$(cat release-state.txt)" == false ]]; then
+              echo 'This stable release is already published; leaving its assets unchanged.'
+              exit 0
+            fi
+          else
+            gh release create "$RELEASE_TAG" --verify-tag --target "$BUILD_COMMIT" \
+              --draft --prerelease="$prerelease" --latest=false \
+              --title "v$BUILD_VERSION" --notes-file release-assets/release-notes.md
+          fi
+          gh release upload "$RELEASE_TAG" release-assets/vuetorrent.zip release-assets/SHA256SUMS.txt --clobber
+          gh release edit "$RELEASE_TAG" --draft=false --prerelease="$prerelease" --latest="$latest" \
+            --target "$BUILD_COMMIT" --title "v$BUILD_VERSION" --notes-file release-assets/release-notes.md
+          echo "Release: https://github.com/$GH_REPO/releases/tag/$RELEASE_TAG" >> "$GITHUB_STEP_SUMMARY"

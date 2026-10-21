@@ -9,6 +9,7 @@ permissions:
 
 jobs:
   release-to-discord:
+    if: github.repository == 'VueTorrent/VueTorrent'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

@@ -111,7 +111,7 @@ VITE_FAKE_TORRENTS_COUNT=5
 
 - 用户可见文案使用现有 i18n key 和 `useI18nUtils()` / `t()`，不在组件里硬编码中文或英文。
 - 上游通过 Tolgee 维护翻译；见 `.github/CONTRIBUTING.md`。本 fork 新增功能需要新文案时，至少补齐 `en.json` 和 `zh-Hans.json`，遵循现有 key 结构及占位符，其余语言可使用现有英文 fallback。
-- 不为一个功能批量重写其他语言。`translations.yml` 和发布流程会重新导入 Tolgee 数据，启用这些流程前须处理本 fork 新增 key 的保留问题。
+- 不为一个功能批量重写其他语言。发布流程使用仓库内翻译；`translations.yml` 默认仅在上游仓库执行。若以后为本 fork 启用 Tolgee 同步，先处理新增 key 和 `src/locales/index.ts` 的保留问题。
 - 路由使用 hash history，Vite `base` 为 `./`。保留子路径部署下 API、静态资源、magnet 链接和 PWA 的路径行为，不擅自改成 history 路由或写死根路径。
 - 涉及 PWA 时检查 `vite.config.ts`、`index.html`、`public/globalErrorHandler.js`，区分开发环境与构建预览；PWA 在当前开发配置中关闭。
 
@@ -124,12 +124,15 @@ VITE_FAKE_TORRENTS_COUNT=5
 - 遇到依赖下载受限、Node 不兼容、缺少浏览器/后端或既有失败时，报告具体阻塞、已做验证和未做项目，不修改无关配置来掩盖失败。
 - 完成时简要说明：修改内容与原因、验证结果、剩余限制；涉及提交时给出本 fork 的提交或 PR 链接。提交信息沿用 `feat:`、`fix:`、`docs:`、`chore:` 等 Conventional Commits 风格。
 
-## 6. fork 发布注意事项
+## 6. fork 自动发布
 
-当前仓库保留上游发布配置，不能假定 fork 已具备上游的 secrets、外部仓库或镜像仓库权限：
-
-- `.github/workflows/build-release.yml` 监听 `master` push，使用 `GH_PAT`、`TOLGEE_TOKEN`，包含 nightly tag、产物分支、镜像和 demo 发布。
-- 其中镜像目标仍是 `ghcr.io/VueTorrent/vuetorrent-lsio-mod`，demo 目标仍是 `VueTorrent/demo`。只有发布任务明确要求时才调整或启用对应流程，不以测试为由向上游目标推送。
-- `src/services/Github.ts` 当前从上游查询最新版；`docker-compose.yml` 也使用上游 Docker mod。若任务涉及本 fork 的更新/分发，需要一起检查这些入口，不能仅改 README 后声称已完成独立发布。
-- 版本和 CHANGELOG 由 Release Please 配置协作管理；普通功能修复不顺带手工改版本、生成 release 或修改发布凭据。
+- `.github/workflows/release.yml` 是本 fork 的发布入口，替代原 `build-release.yml`。更新 `master` 自动构建并更新 `latest_nightly` 预发布；推送 `vX.Y.Z` 标签发布正式版本；支持 `workflow_dispatch` 手动运行。
+- 发布前执行 `npm ci`、测试、lint 和正式构建，产物为 `vuetorrent.zip` 与 `SHA256SUMS.txt`。ZIP 顶层保留 `vuetorrent/`，内部包含 `public/` 和 `version.txt`。
+- 正式标签必须与 `package.json` 版本一致；需要正式发布时同步更新 `package.json`、`package-lock.json`，再创建并推送标签。Release Please 的旧配置保留供参考，当前流程不调用它，也不会自动创建版本 PR。
+- 开发版版本号为 `<package版本>-<run_number>-g<commit前8位>`，仅在 CI 工作区修改包版本。`latest_nightly` 可滚动更新；正式版本标签和已发布正式包不覆盖。不要手动修改开发版 Release 标题：界面的版本检查使用其中的精确版本号。
+- 仅发布到 `${{ github.repository }}`，使用内置 `GITHUB_TOKEN`；构建 job 只读，发布 job 使用 `contents: write`。不需要 `GH_PAT`、`TOLGEE_TOKEN` 或 Discord webhook。
+- 原上游 Docker 镜像、demo 仓库和产物分支发布步骤已移除。`notify-release.yml` 与 `translations.yml` 默认仅在上游仓库执行；不要为本 fork 擅自启用。
+- `src/services/Github.ts` 及设置页版本链接已指向本 fork。`docker-compose.yml` 是开发测试环境，仍使用上游 Docker mod；本项目的发布包按 README 的备用 WebUI 路径方式安装，不能声称已发布本 fork 的 Docker 镜像。
+- 希望自动打包的源码提交不要带 `[skip ci]`；仅在明确希望跳过构建时使用。发布失败先查看 Actions 日志，不通过跳过测试、扩大令牌权限或覆盖正式标签掩盖问题。
+- 首次 fork 若尚未启用 Actions，需在仓库 Actions 页启用工作流。执行本地检查后仍应核对远端运行结果与 Release 附件，不能把“已提交工作流”等同于“发布成功”。
 - 本文与代码不一致时先核对当前源码及配置，并在同一任务中修正对应说明；不要为了迎合文档而修改正确实现。

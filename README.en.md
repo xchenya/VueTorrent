@@ -34,6 +34,7 @@ This fork builds on VueTorrent with the following adjustments:
 | **Page size** | **30 torrents** per page by default |
 | **Centralized defaults** | [src/config/defaults.ts](src/config/defaults.ts) supplies shared defaults for initialization and reset |
 | **Bilingual documentation** | Chinese README by default, with this English version retained; repository, release, and contribution links point to this fork |
+| **Automatic releases** | Updates to `master` publish the [latest nightly build](https://github.com/xchenya/VueTorrent/releases/tag/latest_nightly); stable tags and manual builds are also supported |
 | **Development guide** | [AGENTS.md](AGENTS.md) covers project structure, conventions, validation, and fork publishing boundaries |
 
 ### Customizing Defaults
@@ -111,9 +112,26 @@ Open the preview URL printed in the terminal.
 
 ## Installation
 
+### Automatic Builds and Releases
+
+Workflow: [Build and publish releases](https://github.com/xchenya/VueTorrent/actions/workflows/release.yml). It uses the built-in `GITHUB_TOKEN`; no extra secrets are required.
+
+| Trigger | Result in Releases |
+| --- | --- |
+| Push or merge into `master` | Update the rolling `latest_nightly` prerelease |
+| Push a `vX.Y.Z` tag | Publish a stable version; the tag must match `package.json` |
+| Actions → Run workflow | Select `master` to rebuild the nightly release, or an existing version tag to retry a stable release |
+
+After tests, lint, and the build pass, the workflow uploads **`vuetorrent.zip`** and **`SHA256SUMS.txt`**. Nightly assets are updated in place; published stable assets are preserved.
+The workflow publishes only to this repository, uses the checked-in translations, and does not depend on upstream Tolgee or publish upstream Docker images or demo sites.
+
+If Actions is disabled for a new fork, enable workflows from the Actions page and run the workflow once. Do not add `[skip ci]` to commits that should produce a build.
+
 ### Using a Release Archive
 
-Download an available build from [this project's Releases page](https://github.com/xchenya/VueTorrent/releases). If no release archive is available yet, build from source as described below.
+Download **`vuetorrent.zip`** from [this project's Releases page](https://github.com/xchenya/VueTorrent/releases). Builds of the latest code are available under [latest_nightly](https://github.com/xchenya/VueTorrent/releases/tag/latest_nightly).
+
+GitHub's generated **Source code (zip / tar.gz)** archives are uncompiled source, not deployable WebUI packages. Before the first build is available, you can also build from source below.
 
 Extract the archive and place the entire `vuetorrent` directory somewhere qBittorrent can access. In qBittorrent Settings → WebUI, enable “Use alternative Web UI” and set the files location to the absolute path of that directory.
 
