@@ -30,3 +30,7 @@ vuetorrent-demo/**
 docker/**
 coverage/
 config/
+
+# Application defaults are source code, not local runtime configuration.
+!src/config/
+!src/config/**

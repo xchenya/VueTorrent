@@ -1,5 +1,6 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { reactive, ref } from 'vue'
+import { defaultHistorySize } from '@/config/defaults'
 import { HistoryKey } from '@/constants/vuetorrent'
 
 type History = Partial<Record<HistoryKey, string[]>>
@@ -8,7 +9,7 @@ export const useHistoryStore = defineStore(
   'history',
   () => {
     const _history = reactive<History>({})
-    const historySize = ref(3)
+    const historySize = ref(defaultHistorySize)
 
     function pushValueToHistory(key: HistoryKey, value: string) {
       if (!value) return

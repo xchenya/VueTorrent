@@ -5,6 +5,7 @@ import { useAppStore } from './app'
 import { useTorrentDetailStore } from './torrentDetail'
 import { useTrackerStore } from './trackers'
 import { useSearchQuery, useTorrentBuilder } from '@/composables'
+import { createTorrentFilterDefaults } from '@/config/defaults'
 import { comparatorMap, FilterType, TorrentState, TrackerSpecialFilter } from '@/constants/vuetorrent'
 import qbit from '@/services/qbit'
 import { RawQbitTorrent } from '@/types/qbit/models'
@@ -14,6 +15,7 @@ import { Torrent as VtTorrent } from '@/types/vuetorrent'
 export const useTorrentStore = defineStore(
   'torrents',
   () => {
+    const defaults = createTorrentFilterDefaults()
     const torrentStateNotAnnounced = [
       TorrentState.UNKNOWN,
       TorrentState.ERROR,
@@ -41,17 +43,17 @@ export const useTorrentStore = defineStore(
       )
     )
 
-    const filterType = ref(FilterType.CONJUNCTIVE)
+    const filterType = ref(defaults.filterType)
 
-    const isTextFilterActive = shallowRef(true)
-    const textFilter = ref('')
+    const isTextFilterActive = shallowRef(defaults.isTextFilterActive)
+    const textFilter = ref(defaults.textFilter)
     whenever(
       () => textFilter.value.length === 0,
       () => (isTextFilterActive.value = true)
     )
 
-    const isStatusFilterActive = shallowRef(true)
-    const statusFilter = ref<TorrentState[]>([])
+    const isStatusFilterActive = shallowRef(defaults.isStatusFilterActive)
+    const statusFilter = ref(defaults.statusFilter)
     const torrentsByStatus = computed(() =>
       torrents.value.reduce(
         (acc, torrent) => {
@@ -69,26 +71,26 @@ export const useTorrentStore = defineStore(
       () => (isStatusFilterActive.value = true)
     )
 
-    const isCategoryFilterActive = shallowRef(true)
-    const categoryFilter = ref<string[]>([])
+    const isCategoryFilterActive = shallowRef(defaults.isCategoryFilterActive)
+    const categoryFilter = ref(defaults.categoryFilter)
     whenever(
       () => categoryFilter.value.length === 0,
       () => (isCategoryFilterActive.value = true)
     )
 
-    const isTagFilterActive = shallowRef(true)
-    const tagFilterInclude = ref(new Array<string | null>())
-    const tagFilterExclude = ref(new Array<string | null>())
-    const tagFilterType = ref(FilterType.DISJUNCTIVE)
+    const isTagFilterActive = shallowRef(defaults.isTagFilterActive)
+    const tagFilterInclude = ref(defaults.tagFilterInclude)
+    const tagFilterExclude = ref(defaults.tagFilterExclude)
+    const tagFilterType = ref(defaults.tagFilterType)
     whenever(
       () => tagFilterInclude.value.length + tagFilterExclude.value.length === 0,
       () => (isTagFilterActive.value = true)
     )
 
-    const isTrackerFilterActive = shallowRef(true)
-    const trackerFilterInclude = ref(new Array<string | TrackerSpecialFilter>())
-    const trackerFilterExclude = ref(new Array<string | TrackerSpecialFilter>())
-    const trackerFilterType = ref(FilterType.DISJUNCTIVE)
+    const isTrackerFilterActive = shallowRef(defaults.isTrackerFilterActive)
+    const trackerFilterInclude = ref(defaults.trackerFilterInclude)
+    const trackerFilterExclude = ref(defaults.trackerFilterExclude)
+    const trackerFilterType = ref(defaults.trackerFilterType)
     const torrentsByTracker = computed(() =>
       torrents.value.reduce(
         (acc, torrent) => {
@@ -118,7 +120,7 @@ export const useTorrentStore = defineStore(
       () => (isTrackerFilterActive.value = true)
     )
 
-    const sortCriterias = ref<{ value: keyof VtTorrent; reverse: boolean }[]>([{ value: 'added_on', reverse: true }])
+    const sortCriterias = ref(defaults.sortCriterias)
 
     function matchStatus(t: VtTorrent): boolean {
       return statusFilter.value.includes(t.state)
@@ -391,28 +393,23 @@ export const useTorrentStore = defineStore(
       $reset: () => {
         _torrents.value.clear()
         triggerRef(_torrents)
-        sortCriterias.value = [{ value: 'added_on', reverse: true }]
-
-        filterType.value = FilterType.CONJUNCTIVE
-
-        isTextFilterActive.value = true
-        textFilter.value = ''
-
-        isStatusFilterActive.value = true
-        statusFilter.value = []
-
-        isCategoryFilterActive.value = true
-        categoryFilter.value = []
-
-        isTagFilterActive.value = true
-        tagFilterInclude.value = []
-        tagFilterExclude.value = []
-        tagFilterType.value = FilterType.DISJUNCTIVE
-
-        isTrackerFilterActive.value = true
-        trackerFilterInclude.value = []
-        trackerFilterExclude.value = []
-        trackerFilterType.value = FilterType.DISJUNCTIVE
+        const defaults = createTorrentFilterDefaults()
+        filterType.value = defaults.filterType
+        isTextFilterActive.value = defaults.isTextFilterActive
+        textFilter.value = defaults.textFilter
+        isStatusFilterActive.value = defaults.isStatusFilterActive
+        statusFilter.value = defaults.statusFilter
+        isCategoryFilterActive.value = defaults.isCategoryFilterActive
+        categoryFilter.value = defaults.categoryFilter
+        isTagFilterActive.value = defaults.isTagFilterActive
+        tagFilterInclude.value = defaults.tagFilterInclude
+        tagFilterExclude.value = defaults.tagFilterExclude
+        tagFilterType.value = defaults.tagFilterType
+        isTrackerFilterActive.value = defaults.isTrackerFilterActive
+        trackerFilterInclude.value = defaults.trackerFilterInclude
+        trackerFilterExclude.value = defaults.trackerFilterExclude
+        trackerFilterType.value = defaults.trackerFilterType
+        sortCriterias.value = defaults.sortCriterias
       },
     }
   },

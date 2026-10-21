@@ -1,73 +1,57 @@
 import { useMediaQuery } from '@vueuse/core'
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { computed, reactive, ref, watch } from 'vue'
+import { computed, reactive, toRefs, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useTheme } from 'vuetify'
 import { useI18nUtils } from '@/composables'
-import {
-  DashboardProperty,
-  defaultDateFormat,
-  defaultDurationFormat,
-  PropertyData,
-  propsData,
-  propsMetadata,
-  ThemeMode,
-  TitleOptions,
-  TorrentDetailTab,
-  TorrentProperty,
-} from '@/constants/vuetorrent'
-import { jsonDeserialize, jsonSerialize } from '@/helpers'
-import { DarkLegacy, LightLegacy } from '@/themes'
-import type { SearchSortBy } from '@/types/vuetorrent'
+import { createVueTorrentDefaults } from '@/config/defaults'
+import { DashboardProperty, propsData, propsMetadata, ThemeMode, TorrentProperty } from '@/constants/vuetorrent'
+import { jsonDeserialize, jsonSerialize } from '@/helpers/json'
 
 export const useVueTorrentStore = defineStore(
   'vuetorrent',
   () => {
-    const language = ref('en')
-    const theme = reactive({
-      mode: ThemeMode.SYSTEM,
-      light: LightLegacy.id,
-      dark: DarkLegacy.id,
-    })
-    const showSpeedInTitle = ref(false)
-    /** @deprecated */
-    const deleteWithFiles = ref(false)
-    const uiTitleType = ref(TitleOptions.DEFAULT)
-    const uiTitleCustom = ref('')
-    const hideChipIfUnset = ref(false)
-    const enableRatioColors = ref(true)
-    const enableHashColors = ref(true)
-    const paginationSize = ref(15)
-    const dateFormat = ref(defaultDateFormat)
-    const durationFormat = ref(defaultDurationFormat)
-    const isShutdownButtonVisible = ref(false)
-    const useBitSpeed = ref(false)
-    const expandContent = ref(true)
-    const useBinarySize = ref(false)
-    const refreshInterval = ref(2000)
-    const fileContentInterval = ref(5000)
-    const useIdForRssLinks = ref(false)
-    const hideColoredChip = ref(false)
-    const displayGraphLimits = ref(true)
-    const useEmojiState = ref(true)
-    const fetchExternalIpInfo = ref(false)
-    const reduceMotion = ref(false)
+    const { theme: initialTheme, ...initialSettings } = createVueTorrentDefaults()
+    const theme = reactive(initialTheme)
+    const settings = reactive(initialSettings)
+    const {
+      language,
+      showSpeedInTitle,
+      deleteWithFiles,
+      uiTitleType,
+      uiTitleCustom,
+      hideChipIfUnset,
+      enableRatioColors,
+      enableHashColors,
+      paginationSize,
+      dateFormat,
+      durationFormat,
+      isShutdownButtonVisible,
+      useBitSpeed,
+      expandContent,
+      useBinarySize,
+      refreshInterval,
+      fileContentInterval,
+      useIdForRssLinks,
+      hideColoredChip,
+      displayGraphLimits,
+      useEmojiState,
+      fetchExternalIpInfo,
+      reduceMotion,
+      enableRawValueTooltips,
+      thousandSeparator,
+      defaultTorrentDetailTab,
+      searchEngineSortBy,
+      tableColumnWidths,
+      torrentSortFavourites,
+      logoutUrl,
+      _busyProperties,
+      _doneProperties,
+      _busyGridProperties,
+      _doneGridProperties,
+      _tableProperties,
+    } = toRefs(settings)
     const keepDefaultTransitions = computed(() => !reduceMotion.value)
-    const enableRawValueTooltips = ref(true)
-    const thousandSeparator = ref(' ')
-    const defaultTorrentDetailTab = ref(TorrentDetailTab.LAST_OPENED)
-    const searchEngineSortBy = ref<SearchSortBy[]>([])
-    const tableColumnWidths = ref<Record<string, Record<string, number>>>({})
-    const torrentSortFavourites = ref<Set<string>>(new Set())
-    const logoutUrl = ref('')
-
-    const _busyProperties = ref<PropertyData>(JSON.parse(JSON.stringify(propsData)))
-    const _doneProperties = ref<PropertyData>(JSON.parse(JSON.stringify(propsData)))
-
-    const _busyGridProperties = ref<PropertyData>(JSON.parse(JSON.stringify(propsData)))
-    const _doneGridProperties = ref<PropertyData>(JSON.parse(JSON.stringify(propsData)))
-
-    const _tableProperties = ref<PropertyData>(JSON.parse(JSON.stringify(propsData)))
 
     const isInfiniteScrollActive = computed(() => paginationSize.value === -1)
 
@@ -329,47 +313,9 @@ export const useVueTorrentStore = defineStore(
       searchEngineSortBy,
       logoutUrl,
       $reset: () => {
-        language.value = 'en'
-        theme.mode = ThemeMode.SYSTEM
-        theme.light = LightLegacy.id
-        theme.dark = DarkLegacy.id
-        showSpeedInTitle.value = false
-        deleteWithFiles.value = false
-        uiTitleType.value = TitleOptions.DEFAULT
-        uiTitleCustom.value = ''
-        hideChipIfUnset.value = false
-        enableRatioColors.value = true
-        enableRawValueTooltips.value = true
-        thousandSeparator.value = ' '
-        enableHashColors.value = true
-        paginationSize.value = 15
-        dateFormat.value = defaultDateFormat
-        durationFormat.value = defaultDurationFormat
-        isShutdownButtonVisible.value = false
-        useBitSpeed.value = false
-        useBinarySize.value = false
-        refreshInterval.value = 2000
-        fileContentInterval.value = 5000
-        useIdForRssLinks.value = false
-        hideColoredChip.value = false
-        displayGraphLimits.value = true
-        useEmojiState.value = true
-        fetchExternalIpInfo.value = false
-        expandContent.value = true
-        reduceMotion.value = false
-        defaultTorrentDetailTab.value = TorrentDetailTab.LAST_OPENED
-        searchEngineSortBy.value = []
-        tableColumnWidths.value = {}
-        torrentSortFavourites.value = new Set()
-        logoutUrl.value = ''
-
-        _busyProperties.value = JSON.parse(JSON.stringify(propsData))
-        _doneProperties.value = JSON.parse(JSON.stringify(propsData))
-
-        _busyGridProperties.value = JSON.parse(JSON.stringify(propsData))
-        _doneGridProperties.value = JSON.parse(JSON.stringify(propsData))
-
-        _tableProperties.value = JSON.parse(JSON.stringify(propsData))
+        const { theme: defaultTheme, ...defaultSettings } = createVueTorrentDefaults()
+        Object.assign(theme, defaultTheme)
+        Object.assign(settings, defaultSettings)
       },
     }
   },

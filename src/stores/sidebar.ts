@@ -1,34 +1,12 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { ref } from 'vue'
-import { SidebarWidget } from '@/types/vuetorrent'
-
-type FilterKey = 'state' | 'category' | 'tag' | 'tracker'
-
-interface FilterItem {
-  name: FilterKey
-  active: boolean
-}
+import { reactive, toRefs } from 'vue'
+import { createSidebarDefaults } from '@/config/defaults'
 
 export const useSidebarStore = defineStore(
   'sidebar',
   () => {
-    const sidebarWidgets = ref<SidebarWidget[]>([
-      { name: 'CurrentSpeed', active: true },
-      { name: 'SpeedGraph', active: true },
-      { name: 'TransferStats', active: true },
-      { name: 'FreeSpace', active: true },
-      { name: 'PerformanceStats', active: true },
-      { name: 'ConnectionStats', active: true },
-      { name: 'Filters', active: true },
-    ])
-    const isDrawerRight = ref(false)
-
-    const filters = ref<FilterItem[]>([
-      { name: 'state', active: true },
-      { name: 'category', active: true },
-      { name: 'tag', active: true },
-      { name: 'tracker', active: true },
-    ])
+    const settings = reactive(createSidebarDefaults())
+    const { sidebarWidgets, isDrawerRight, filters } = toRefs(settings)
 
     function toggleWidget(name: string) {
       const widget = sidebarWidgets.value.find(w => w.name === name)
@@ -61,22 +39,7 @@ export const useSidebarStore = defineStore(
       isDrawerRight,
       filters,
       $reset: () => {
-        sidebarWidgets.value = [
-          { name: 'CurrentSpeed', active: true },
-          { name: 'SpeedGraph', active: true },
-          { name: 'TransferStats', active: true },
-          { name: 'FreeSpace', active: true },
-          { name: 'PerformanceStats', active: true },
-          { name: 'ConnectionStats', active: true },
-          { name: 'Filters', active: true },
-        ]
-        isDrawerRight.value = false
-        filters.value = [
-          { name: 'state', active: true },
-          { name: 'category', active: true },
-          { name: 'tag', active: true },
-          { name: 'tracker', active: true },
-        ]
+        Object.assign(settings, createSidebarDefaults())
       },
     }
   },

@@ -122,6 +122,23 @@ npm run build
 
 `lint:fix` modifies files. See [AGENTS.md](AGENTS.md) for the directory map, API conventions, and validation requirements.
 
+### Customizing Default Settings
+
+This fork keeps its UI defaults in [src/config/defaults.ts](src/config/defaults.ts). After editing, run `npm run build` and deploy the new build.
+
+| Configuration | Defaults you can customize |
+| --- | --- |
+| `localeDefaults` | UI and fallback languages; set `language` to `zh-Hans` for Simplified Chinese |
+| `createVueTorrentDefaults()` | Theme, page size, refresh intervals, units, title, detail tab, and other UI preferences |
+| `createDashboardDefaults()` | Default list, grid, or table view |
+| `createSidebarDefaults()` | Sidebar position, widget order and visibility, and filters |
+| `createTorrentFilterDefaults()` | Initial filters and sort order |
+| `torrentPropertyDefaults` | Torrent property visibility and order; keep `order` values consecutive and unique |
+| `defaultDateFormat`, `defaultDurationFormat`, `defaultHistorySize` | Date format, duration format, and history size |
+
+Initialization and reset share the same defaults, with existing default behavior preserved. Saved browser settings and optional backend settings still take precedence; updating does not overwrite personal preferences.
+To verify new factory defaults, use a browser environment without saved settings for the site and account for backend synchronization. qBittorrent server settings such as download paths and speed limits are not configured here.
+
 ## Features
 
 - **Torrent management**: add, remove, pause, resume, and rename torrents; select files to download; inspect torrent information, trackers, peers, content, tags, and categories; search for torrents directly from the WebUI.

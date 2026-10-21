@@ -4,7 +4,7 @@ import { computed, ref, watch } from 'vue'
 import { useTorrentStore } from './torrents'
 import { useVueTorrentStore } from './vuetorrent'
 import { useArrayPagination, useI18nUtils } from '@/composables'
-import { DashboardDisplayMode } from '@/constants/vuetorrent'
+import { createDashboardDefaults } from '@/config/defaults'
 import { formatData } from '@/helpers'
 
 export const useDashboardStore = defineStore(
@@ -14,7 +14,7 @@ export const useDashboardStore = defineStore(
     const isSelectionMultiple = ref(false)
     const selectedTorrents = ref<string[]>([])
     const latestSelectedTorrent = ref<string>()
-    const displayMode = ref(DashboardDisplayMode.LIST)
+    const displayMode = ref(createDashboardDefaults().displayMode)
 
     const { t } = useI18nUtils()
     const torrentStore = useTorrentStore()
@@ -132,7 +132,7 @@ export const useDashboardStore = defineStore(
         isSelectionMultiple.value = false
         selectedTorrents.value = []
         latestSelectedTorrent.value = undefined
-        displayMode.value = DashboardDisplayMode.LIST
+        displayMode.value = createDashboardDefaults().displayMode
       },
     }
   },

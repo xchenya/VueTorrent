@@ -30,6 +30,7 @@ VueTorrent 是 qBittorrent 的替代 WebUI，以静态前端通过 qBittorrent W
 | `src/components/` | 按 Dashboard、Dialogs、Settings、TorrentDetail 等划分的界面组件；通用组件在 `Core/` |
 | `src/stores/` | Pinia 状态及业务动作；`app.ts` 管理认证与版本，`maindata.ts` 管理增量同步，`torrents.ts` 管理种子与操作 |
 | `src/stores/vuetorrent.ts` | WebUI 偏好、主题、显示选项和持久化设置 |
+| `src/config/defaults.ts` | 界面默认值的统一入口；初始化与重置共用，数组、对象和集合通过工厂函数创建独立副本 |
 | `src/services/qbit/` | `IProvider.ts` 接口、`QbitProvider.ts` 真实 API、`MockProvider.ts` 模拟实现、`index.ts` 实现选择 |
 | `src/services/backend.ts`、`src/composables/BackendSync.ts` | 可选后端及设置同步 |
 | `src/composables/`、`src/helpers/` | 可复用组合逻辑、定时器、数据构建及纯工具函数 |
@@ -102,6 +103,7 @@ VITE_FAKE_TORRENTS_COUNT=5
 - 修改同步时保留 `rid`、全量更新、增量合并和 `*_removed` 删除语义；不要把部分响应当作完整对象覆盖。
 - 不在每个组件重复启动轮询；沿用 `maindata` 和 `useTimer` 生命周期，保留退出登录时停轮询及 403 失效处理。
 - 设置新增或改名时检查默认值、store 返回值、`$reset`、持久化、导入导出及 `BackendSync` 的白名单/黑名单；保证已有用户配置可继续读取。
+- 修改界面默认值时优先编辑 `src/config/defaults.ts`，不要在 store 初始化或 `$reset` 中再次硬编码。保持持久化 key 不变，不用升级迁移覆盖用户已保存的偏好；运行 `src/stores/defaults.spec.ts` 验证重置与恢复行为。
 - 可选后端不可用时仍须支持基本 WebUI 功能，不能让 `/backend` 的失败阻塞认证或种子列表。
 - 删除操作必须保留“仅删除任务”与“同时删除文件”的区别，正确传递选中 hash 与 `deleteFiles`；不要在未授权的真实实例上进行删除、移动文件、关机等验证。
 

@@ -16,6 +16,7 @@ import tr from './tr.json'
 import uk from './uk.json'
 import zh_hans from './zh-Hans.json'
 import zh_hant from './zh-Hant.json'
+import { localeDefaults } from '@/config/defaults'
 
 type LocaleDef = { title: string; value: Locales }
 
@@ -82,5 +83,5 @@ export const messages: Record<Locales, any> = {
   [Locales.ZH_HANT]: zh_hant,
 }
 
-export const defaultLocale = Locales.EN
-export const fallbackLocale = Locales.EN
+export const defaultLocale = localeDefaults.language
+export const fallbackLocale = localeDefaults.fallbackLanguage

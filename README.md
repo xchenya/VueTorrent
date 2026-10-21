@@ -122,6 +122,23 @@ npm run build
 
 `lint:fix` 会修改文件。更多目录说明、API 约定和验证要求见 [AGENTS.md](AGENTS.md)。
 
+### 自定义默认设置
+
+本 fork 的界面默认值统一在 [src/config/defaults.ts](src/config/defaults.ts) 中维护，修改后执行 `npm run build` 并部署新的构建产物。
+
+| 配置位置 | 可调整的默认值 |
+| --- | --- |
+| `localeDefaults` | 界面语言与翻译回退语言；默认简体中文可将 `language` 改为 `zh-Hans` |
+| `createVueTorrentDefaults()` | 主题、分页数量、刷新间隔、显示单位、标题、详情页选项等 |
+| `createDashboardDefaults()` | 默认列表、网格或表格视图 |
+| `createSidebarDefaults()` | 侧栏位置、组件顺序与显示状态、筛选项 |
+| `createTorrentFilterDefaults()` | 默认筛选和排序 |
+| `torrentPropertyDefaults` | 各种子属性的显示状态与顺序；`order` 应保持连续且不重复 |
+| `defaultDateFormat`、`defaultDurationFormat`、`defaultHistorySize` | 日期格式、时长格式和历史记录条数 |
+
+初始化和重置使用同一套默认值，原有默认行为保持不变。已保存的浏览器配置和可选后端配置仍优先；默认值不会在更新时强行覆盖个人设置。
+验证新的出厂默认值时，使用没有该站点已保存配置的浏览器环境，并留意后端同步。下载目录、限速等 qBittorrent 服务端配置不在此文件中。
+
 ## 功能
 
 - **种子管理**：添加、删除、暂停、恢复和重命名种子；选择需要下载的文件；查看种子信息、Tracker、连接用户、文件内容、标签和分类；直接在 WebUI 中搜索种子。
