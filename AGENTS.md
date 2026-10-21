@@ -45,7 +45,7 @@ VueTorrent 是 qBittorrent 的替代 WebUI，以静态前端通过 qBittorrent W
 ## 3. 安装、开发与构建
 
 - 使用 npm，保留 `package-lock.json`；`packageManager` 当前声明 `npm@11.6.2`。不要额外引入 yarn/pnpm 锁文件。
-- 当前没有固定的 Node `engines` 版本，CI 使用 `node-version: 'latest'`。选择符合锁定依赖运行要求的 Node，排障时记录实际 Node/npm 版本，不凭空声称最低支持版本。
+- 当前没有固定的 Node `engines` 版本，发布与 Pages 工作流固定使用 Node 24，其他 CI 以各自配置为准。选择符合锁定依赖运行要求的 Node，排障时记录实际 Node/npm 版本，不凭空声称最低支持版本。
 - 干净环境使用 `npm ci`。仅在确实修改依赖时更新锁文件，不为解决网络失败随意升级依赖。
 
 | 命令 | 用途 |
@@ -80,7 +80,8 @@ VITE_FAKE_TORRENTS_COUNT=5
 
 - 正式静态资源输出为 `vuetorrent/public/`。
 - `npm run build` 后的 `postbuild.cjs` 在 `vuetorrent/version.txt` 写入版本；直接运行 `vite build` 不包含这个 npm 后处理。
-- demo 输出为 `vuetorrent-demo/`。源码中的 `public/` 是输入资源目录。
+- demo 输出为 `vuetorrent-demo/`，用于独立的 GitHub Pages 预览站。源码中的 `public/` 是输入资源目录。
+- demo 始终使用 MockProvider，跳过可选后端探测并关闭 PWA 注册；预览模式提示至少维护中英双语。不得向 Pages 构建注入真实下载器地址、账户或数据。
 - 不提交 `node_modules/`、构建产物、覆盖率、`.env` 或本地 `docker/` 数据；发布产物分支由发布流程管理。
 
 ## 4. 实现约定
@@ -126,6 +127,7 @@ VITE_FAKE_TORRENTS_COUNT=5
 
 ## 6. fork 自动发布
 
+- `.github/workflows/pages.yml` 在 `master` 更新或手动运行时，测试、lint 和 demo 构建通过后，将 `vuetorrent-demo/` 部署到本 fork 的 GitHub Pages；线上使用 60 条模拟任务。Pages Source 应设为 GitHub Actions，部署 job 仅使用 `pages: write` 与 `id-token: write`，无需额外密钥或 `gh-pages` 分支。
 - `.github/workflows/release.yml` 是本 fork 的发布入口，替代原 `build-release.yml`。更新 `master` 自动构建并更新 `latest_nightly` 预发布；推送 `vX.Y.Z` 标签发布正式版本；支持 `workflow_dispatch` 手动运行。
 - 发布前执行 `npm ci`、测试、lint 和正式构建，产物为 `vuetorrent.zip` 与 `SHA256SUMS.txt`。ZIP 顶层保留 `vuetorrent/`，内部包含 `public/` 和 `version.txt`。
 - 正式标签必须与 `package.json` 版本一致；需要正式发布时同步更新 `package.json`、`package-lock.json`，再创建并推送标签。Release Please 的旧配置保留供参考，当前流程不调用它，也不会自动创建版本 PR。

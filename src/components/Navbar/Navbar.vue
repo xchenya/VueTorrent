@@ -4,8 +4,11 @@ import { useRouter } from 'vue-router'
 import ActiveFilters from './TopWidgets/ActiveFilters.vue'
 import TopContainer from './TopWidgets/TopContainer.vue'
 import TorrentSearchbar from '@/components/TorrentSearchbar.vue'
+import { useI18nUtils } from '@/composables'
 import { useNavbarStore } from '@/stores'
 
+const { t } = useI18nUtils()
+const isDemo = import.meta.env.MODE === 'demo'
 const router = useRouter()
 const { isDrawerOpen } = storeToRefs(useNavbarStore())
 
@@ -25,6 +28,12 @@ function goHome() {
       <span v-if="$vuetify.display.smAndUp" class="text-accent">Vue</span>
       <span v-if="$vuetify.display.smAndUp">Torrent</span>
     </div>
+
+    <v-tooltip v-if="isDemo" :text="t('demo.description')" location="bottom" open-on-click>
+      <template #activator="{ props }">
+        <v-chip v-bind="props" class="mx-2 flex-shrink-0" color="accent" size="small">{{ t('demo.label') }}</v-chip>
+      </template>
+    </v-tooltip>
 
     <ActiveFilters />
 

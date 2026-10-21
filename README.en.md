@@ -20,9 +20,9 @@ A sleek qBittorrent WebUI built with Vue.js, with a clean interface and a mobile
 [![License](https://img.shields.io/github/license/xchenya/VueTorrent)](LICENSE)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor_Covenant-2.1-4baaaa.svg)](.github/CODE_OF_CONDUCT.md)
 
-[Repository](https://github.com/xchenya/VueTorrent) · [Releases](https://github.com/xchenya/VueTorrent/releases) · [Pull Requests](https://github.com/xchenya/VueTorrent/pulls) · [Actions](https://github.com/xchenya/VueTorrent/actions)
+[Live preview](https://xchenya.github.io/VueTorrent/) · [Repository](https://github.com/xchenya/VueTorrent) · [Releases](https://github.com/xchenya/VueTorrent/releases) · [Pull Requests](https://github.com/xchenya/VueTorrent/pulls) · [Actions](https://github.com/xchenya/VueTorrent/actions)
 
-[Fork changes](#fork-changes) · [Customizing defaults](#customizing-defaults) · [Installation](#installation) · [Development](#development) · [Screenshots](#screenshots)
+[Fork changes](#fork-changes) · [Customizing defaults](#customizing-defaults) · [Preview site](#preview-site) · [Installation](#installation) · [Development](#development) · [Screenshots](#screenshots)
 
 ## Fork Changes
 
@@ -35,6 +35,7 @@ This fork builds on VueTorrent with the following adjustments:
 | **Centralized defaults** | [src/config/defaults.ts](src/config/defaults.ts) supplies shared defaults for initialization and reset |
 | **Bilingual documentation** | Chinese README by default, with this English version retained; repository, release, and contribution links point to this fork |
 | **Automatic releases** | Updates to `master` publish the [latest nightly build](https://github.com/xchenya/VueTorrent/releases/tag/latest_nightly); stable tags and manual builds are also supported |
+| **Frontend preview** | The [GitHub Pages preview](https://xchenya.github.io/VueTorrent/) uses simulated data, updates with `master`, and needs no downloader |
 | **Development guide** | [AGENTS.md](AGENTS.md) covers project structure, conventions, validation, and fork publishing boundaries |
 
 ### Customizing Defaults
@@ -95,7 +96,20 @@ qBittorrent server settings such as download paths and speed limits are not conf
 
 </details>
 
-## Local Demo
+## Preview Site
+
+**[Open the live preview →](https://xchenya.github.io/VueTorrent/)**
+
+The preview shares the production source code and builds into a separate static site. Browse the interface, filter torrents, and customize display settings without logging in or connecting to qBittorrent / vuetorrent-backend.
+
+- The online preview contains **60 simulated torrents**, with Simplified Chinese and 30 torrents per page by default. A “Demo preview” badge identifies the mode.
+- All downloader data and operations are simulated; some features only show their interface. Nothing is downloaded and no real downloader settings are changed. UI preferences stay in the current browser.
+- Every push or merge into `master` updates the site after tests, lint, and the demo build pass in [Deploy preview to GitHub Pages](https://github.com/xchenya/VueTorrent/actions/workflows/pages.yml). You can also run this workflow manually on `master` from Actions.
+- Pages deploys only `vuetorrent-demo/`; production WebUI packages still publish through Releases. PWA registration is disabled for the preview, so refreshing loads the new deployment.
+
+For the first deployment, select **GitHub Actions** under **Settings → Pages → Build and deployment → Source**. No additional secrets or `gh-pages` branch are required.
+
+### Local Demo
 
 Run this project's demo with mocked data, without connecting to qBittorrent. In the cloned project directory, run:
 

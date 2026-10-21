@@ -27,6 +27,9 @@ class BackendProvider {
    * @returns true if backend is up, false otherwise
    */
   async ping(): Promise<boolean> {
+    // Static previews have no optional backend to probe or synchronize with.
+    if (import.meta.env.MODE === 'demo') return false
+
     return await this.axios
       .get('/ping')
       .then(

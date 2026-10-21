@@ -20,9 +20,9 @@
 [![License](https://img.shields.io/github/license/xchenya/VueTorrent)](LICENSE)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor_Covenant-2.1-4baaaa.svg)](.github/CODE_OF_CONDUCT.md)
 
-[项目仓库](https://github.com/xchenya/VueTorrent) · [发布版本](https://github.com/xchenya/VueTorrent/releases) · [Pull Requests](https://github.com/xchenya/VueTorrent/pulls) · [Actions](https://github.com/xchenya/VueTorrent/actions)
+[在线预览](https://xchenya.github.io/VueTorrent/) · [项目仓库](https://github.com/xchenya/VueTorrent) · [发布版本](https://github.com/xchenya/VueTorrent/releases) · [Pull Requests](https://github.com/xchenya/VueTorrent/pulls) · [Actions](https://github.com/xchenya/VueTorrent/actions)
 
-[本项目修改](#本项目修改) · [调整默认设置](#调整默认设置) · [安装](#安装) · [开发](#开发) · [界面截图](#界面截图)
+[本项目修改](#本项目修改) · [调整默认设置](#调整默认设置) · [预览站](#预览站) · [安装](#安装) · [开发](#开发) · [界面截图](#界面截图)
 
 ## 本项目修改
 
@@ -35,6 +35,7 @@
 | **统一默认配置** | 集中维护在 [src/config/defaults.ts](src/config/defaults.ts)，初始化与恢复默认共用配置 |
 | **双语文档** | 默认使用中文 README，同时保留 [English](README.en.md)；仓库、发布和贡献入口指向本 fork |
 | **自动发布** | 更新 `master` 后自动打包到 [最新开发版](https://github.com/xchenya/VueTorrent/releases/tag/latest_nightly)，也支持正式版本与手动构建 |
+| **纯前端预览** | [GitHub Pages 预览站](https://xchenya.github.io/VueTorrent/)使用模拟数据，随 `master` 自动更新，无需安装下载器 |
 | **开发约定** | [AGENTS.md](AGENTS.md) 说明项目结构、开发规范、验证方式与 fork 发布边界 |
 
 ### 调整默认设置
@@ -95,7 +96,20 @@
 
 </details>
 
-## 本地演示
+## 预览站
+
+**[打开在线预览 →](https://xchenya.github.io/VueTorrent/)**
+
+预览版与正式版共用源码，单独构建为纯静态站点。无需登录或连接 qBittorrent / vuetorrent-backend，即可浏览界面、筛选任务和调整显示设置。
+
+- 在线预览包含 **60 条模拟任务**，默认简体中文、每页 30 条；顶部显示“模拟预览”提示。
+- 所有下载器数据和操作均为模拟，部分功能仅展示界面；不会实际下载文件或修改真实下载器。界面偏好保存在当前浏览器。
+- 每次推送或合并到 `master`，通过测试、lint 和 demo 构建后，[Deploy preview to GitHub Pages](https://github.com/xchenya/VueTorrent/actions/workflows/pages.yml) 会自动更新预览站。也可在 Actions 中选择该工作流、以 `master` 手动运行。
+- Pages 仅部署 `vuetorrent-demo/`；正式 WebUI 继续通过 Releases 发布。预览版关闭 PWA 注册，刷新页面即可加载新部署。
+
+首次部署时，在仓库 **Settings → Pages → Build and deployment → Source** 中选择 **GitHub Actions**。无需额外密钥，也无需维护 `gh-pages` 分支。
+
+### 本地演示
 
 可以直接运行本项目的模拟数据演示，无需连接 qBittorrent。在克隆后的项目目录执行：
 

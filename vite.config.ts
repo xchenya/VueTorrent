@@ -55,6 +55,8 @@ export default defineConfig(({ mode }) => {
         },
       }),
       VitePWA({
+        // A preview should load the latest deployment and not register as a torrent handler.
+        disable: mode === 'demo',
         devOptions: {
           enabled: false,
         },
