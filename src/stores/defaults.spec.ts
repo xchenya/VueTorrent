@@ -145,7 +145,7 @@ describe('centralized settings defaults', () => {
     localStorage.setItem(
       'vuetorrent_webuiSettings',
       jsonSerialize({
-        language: 'zh-Hans',
+        language: 'en',
         paginationSize: 42,
         theme: { mode: ThemeMode.DARK, light: 'light-redesigned', dark: 'dark-oled' },
         torrentSortFavourites: new Set(['size']),
@@ -157,7 +157,7 @@ describe('centralized settings defaults', () => {
     localStorage.setItem('vuetorrent_torrents', JSON.stringify({ filterType: FilterType.DISJUNCTIVE, sortCriterias: [{ value: 'name', reverse: false }] }))
     const first = mountSettings()
 
-    expect(first.ui.language).toBe('zh-Hans')
+    expect(first.ui.language).toBe('en')
     expect(first.ui.paginationSize).toBe(42)
     expect(first.ui.theme.dark).toBe('dark-oled')
     expect(first.ui.fileContentInterval).toBe(defaults.createVueTorrentDefaults().fileContentInterval)

@@ -15,7 +15,7 @@ import type Torrent from '@/types/vuetorrent/Torrent'
 // 已保存的浏览器配置和可选后端配置仍优先，不在升级时覆盖用户设置。
 // 仅从枚举叶子模块导入运行时值，避免通过 constants/index 引入 store 循环依赖。
 export const localeDefaults: { language: `${Locales}`; fallbackLanguage: `${Locales}` } = {
-  language: 'en', // 简体中文：zh-Hans；繁体中文：zh-Hant
+  language: 'zh-Hans', // 简体中文：zh-Hans；繁体中文：zh-Hant
   fallbackLanguage: 'en',
 }
 
@@ -106,7 +106,7 @@ export function createVueTorrentDefaults() {
     hideChipIfUnset: false,
     enableRatioColors: true,
     enableHashColors: true,
-    paginationSize: 15, // -1 表示无限滚动
+    paginationSize: 30, // 每页条数；-1 表示无限滚动
     dateFormat: defaultDateFormat,
     durationFormat: defaultDurationFormat,
     isShutdownButtonVisible: false,

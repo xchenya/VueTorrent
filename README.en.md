@@ -7,7 +7,9 @@
 
 A sleek qBittorrent WebUI built with Vue.js, with a clean interface and a mobile-friendly experience.
 
-![VueTorrent](VueTorrent-logo.png)
+<p align="center">
+  <img src="VueTorrent-logo.png" width="260" alt="VueTorrent" />
+</p>
 
 ![Vue](https://img.shields.io/badge/Vue-3-brightgreen) ![Vuetify](https://img.shields.io/badge/Vuetify-4-brightgreen)
 ![qBittorrent](https://img.shields.io/badge/qBittorrent-4.4%2B-brightgreen)
@@ -20,7 +22,49 @@ A sleek qBittorrent WebUI built with Vue.js, with a clean interface and a mobile
 
 [Repository](https://github.com/xchenya/VueTorrent) · [Releases](https://github.com/xchenya/VueTorrent/releases) · [Pull Requests](https://github.com/xchenya/VueTorrent/pulls) · [Actions](https://github.com/xchenya/VueTorrent/actions)
 
+[Fork changes](#fork-changes) · [Customizing defaults](#customizing-defaults) · [Installation](#installation) · [Development](#development) · [Screenshots](#screenshots)
+
+## Fork Changes
+
+This fork builds on VueTorrent with the following adjustments:
+
+| Item | Current setting and details |
+| --- | --- |
+| **Default language** | Simplified Chinese (`zh-Hans`), with English as the fallback for missing translations |
+| **Page size** | **30 torrents** per page by default |
+| **Centralized defaults** | [src/config/defaults.ts](src/config/defaults.ts) supplies shared defaults for initialization and reset |
+| **Bilingual documentation** | Chinese README by default, with this English version retained; repository, release, and contribution links point to this fork |
+| **Development guide** | [AGENTS.md](AGENTS.md) covers project structure, conventions, validation, and fork publishing boundaries |
+
+### Customizing Defaults
+
+Edit [src/config/defaults.ts](src/config/defaults.ts), run `npm run build`, and deploy the generated `vuetorrent/` directory.
+
+<details>
+<summary>Expand the default configuration index</summary>
+
+| Configuration | Defaults you can customize |
+| --- | --- |
+| `localeDefaults` | UI language and fallback language for missing translations |
+| `createVueTorrentDefaults()` | Page size, theme, refresh intervals, units, title, detail tab, and other UI preferences |
+| `createDashboardDefaults()` | Default list, grid, or table view |
+| `createSidebarDefaults()` | Sidebar position, widget order and visibility, and filters |
+| `createTorrentFilterDefaults()` | Initial filters and sort order |
+| `torrentPropertyDefaults` | Torrent property visibility and order; keep `order` values consecutive and unique |
+| `defaultDateFormat`, `defaultDurationFormat`, `defaultHistorySize` | Date format, duration format, and history size |
+
+qBittorrent server settings such as download paths and speed limits are not configured here.
+
+</details>
+
+> [!NOTE]
+> The new language and page size apply on first use or after resetting UI preferences. Saved browser and optional backend settings still take precedence and are preserved during upgrades.
+> Existing users can select Simplified Chinese and 30 torrents per page directly in the UI settings.
+
 ## Screenshots
+
+<details>
+<summary>View desktop and mobile screenshots (light / dark)</summary>
 
 - Desktop: light mode
 
@@ -47,6 +91,8 @@ A sleek qBittorrent WebUI built with Vue.js, with a clean interface and a mobile
   <img src="docs/screenshots/screenshot-mobile-dark-mode.webp" width="400" alt="Mobile dashboard (dark mode)" />
   <img src="docs/screenshots/screenshot-mobile-navbar-dark-mode.webp" width="400" alt="Mobile navbar (dark mode)" />
 </p>
+
+</details>
 
 ## Local Demo
 
@@ -121,23 +167,6 @@ npm run build
 ```
 
 `lint:fix` modifies files. See [AGENTS.md](AGENTS.md) for the directory map, API conventions, and validation requirements.
-
-### Customizing Default Settings
-
-This fork keeps its UI defaults in [src/config/defaults.ts](src/config/defaults.ts). After editing, run `npm run build` and deploy the new build.
-
-| Configuration | Defaults you can customize |
-| --- | --- |
-| `localeDefaults` | UI and fallback languages; set `language` to `zh-Hans` for Simplified Chinese |
-| `createVueTorrentDefaults()` | Theme, page size, refresh intervals, units, title, detail tab, and other UI preferences |
-| `createDashboardDefaults()` | Default list, grid, or table view |
-| `createSidebarDefaults()` | Sidebar position, widget order and visibility, and filters |
-| `createTorrentFilterDefaults()` | Initial filters and sort order |
-| `torrentPropertyDefaults` | Torrent property visibility and order; keep `order` values consecutive and unique |
-| `defaultDateFormat`, `defaultDurationFormat`, `defaultHistorySize` | Date format, duration format, and history size |
-
-Initialization and reset share the same defaults, with existing default behavior preserved. Saved browser settings and optional backend settings still take precedence; updating does not overwrite personal preferences.
-To verify new factory defaults, use a browser environment without saved settings for the site and account for backend synchronization. qBittorrent server settings such as download paths and speed limits are not configured here.
 
 ## Features
 
